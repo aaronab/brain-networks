@@ -88,28 +88,30 @@ knn  <- function(graph){
 	return(thcg)
 }
 
-mst <- function(graph){
-#graph=functional connectivity matrix
-#computes the minimum spanning tree of the graph (using igraph function)
-#returns these edges ordered in terms of their connectivity
-	corTs2 <- abs(graph)
-	diag(corTs2) <- 0
-	thc <- corTs2
-	thc[,] <- 0
-	g3 <- graph.adjacency(1-corTs2, weighted = T, mode = 'lower', diag = F)
-	G4 <- minimum.spanning.tree(g3)
-	for(i in 1:(nrow(thc))){
-		thc[i, neighbors(G4, i -1) + 1] <- 1
-	}
-	corTs2 <- corTs2*thc
-	diag(corTs2) <- 0
-	corTs2[upper.tri(corTs2)] <- 0
-	index <- sort(corTs2, index.return = T, decreasing = T)
-	ttt <- corTs2
-	ttt[,] <- 0
-	ttt[index[[2]][1:sum(corTs2 > 0)]] <- 1:sum(corTs2 > 0)
-	ttt[upper.tri(ttt)] <- t(ttt)[upper.tri(ttt)]
-	return(ttt)
+# renamed the fn below to avoid clashes with igraph::mst
+fcm_mst <- function(fcm){
+  #fcm = functional connectivity matrix
+  #computes the minimum spanning tree of the graph (using igraph function)
+  #returns these edges ordered in terms of their connectivity
+  corTs2 <- abs(fcm)
+  diag(corTs2) <- 0
+  thc <- corTs2
+  thc[,] <- 0
+  g3 <- graph.adjacency(1-corTs2, weighted = T, mode = 'lower', diag = F)
+  G4 <- minimum.spanning.tree(g3)
+  for(i in 1:(nrow(thc))){
+    print(i)
+    thc[i, neighbors(G4, i)] <- 1
+  }
+  corTs2 <- corTs2*thc
+  diag(corTs2) <- 0
+  corTs2[upper.tri(corTs2)] <- 0
+  index <- sort(corTs2, index.return = T, decreasing = T)
+  ttt <- corTs2
+  ttt[,] <- 0
+  ttt[index[[2]][1:sum(corTs2 > 0)]] <- 1:sum(corTs2 > 0)
+  ttt[upper.tri(ttt)] <- t(ttt)[upper.tri(ttt)]
+  return(ttt)
 }
 
 combine.mst <- function(g.mst = tm, g.o = ata){
