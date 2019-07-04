@@ -41,7 +41,7 @@ calc_node_phi <- function(x){
   node_phi_array <- array(0, dim=c(nrow(x), nrow(x), ncol(x)))
   
   # Step 2. generate a list of all pairs - more than halves the number of calculations
-  pairs_mat <- make_comb_mat(1:70, CombLength = 2)
+  pairs_mat <- make_comb_mat(1:nrow(x), CombLength = 2)
   
   for(node in 1:ncol(x)){
     # For a given node X, the other nodes are relabeled
