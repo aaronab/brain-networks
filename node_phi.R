@@ -82,7 +82,9 @@ resample_avg_node_phi <- function(x,
                              iterations = 10000){
   
   # x is a 3d aray produced by calc_node_phi
-  
+  # group_membership is a logical vector indicating group membership 
+  # currently only works for two groups
+
   avgcor <- function(x){mean(abs(x[lower.tri(x)]))}
   
   num_nodes <- dim(x)[3]
@@ -104,10 +106,10 @@ resample_avg_node_phi <- function(x,
   }  
   
   
-  CIlower <- apply(avg_node_phi, 1, quantile, probs = .05)
-  CIupper <- apply(avg_node_phi, 1, quantile, probs = .95)
+  CI_Lower <- apply(avg_node_phi, 1, quantile, probs = .05)
+  CI_Upper <- apply(avg_node_phi, 1, quantile, probs = .95)
   
-  resample_node_avg <- cbind(1:86, rowMeans(avg_node_phi), CIlower, CIupper)
+  resample_node_avg <- cbind(1:86, rowMeans(avg_node_phi), CI_Lower, CI_Upper)
   colnames(resample_node_avg)[1:2] = c("node", "resample_mean")
   
   group_node_avg = cbind(1:86, 0, 0, 0)
@@ -138,23 +140,22 @@ resample_avg_node_phi <- function(x,
 avgcor <- function(x){mean(abs(x[lower.tri(x)]))}
 
 ## -------------------- Import data ---------------------------------
-setwd("~/Dropbox/PG Work/PhDs/PhD_GMcPhilemy/Rich_Club/Mod Org")
-partitions <- read.csv("data/subject_partition_members_fa.txt")
+
+# read in data
+# to calculate node_phi
+# x is matrix with partitions as rows, nodes as columns and module labels as the data
+# example below assumes data includes more than the partition info
 
 ## -------------------- Working ---------------------------------
 
 # put module assignments in matrix
-all_mat <- as.matrix(partitions[, 3:88])
+all_mat <- as.matrix(data[, 3:88]) # extract module assignments
 
 node_phi_array = calc_node_phi(all_mat)
 
-# extract node phis for control and patients
-control_rows = partitions$Group=="C"
-patient_rows = partitions$Group=="P"
-
-
-# # get average phi for each node for controls and patients
-node_avg = cbind(1:86, 0, 0, 0)
+# generate group_membership logical vectors
+control_rows = data$Group=="C"
+# patient_rows = data$Group=="P"
 
 rnd_avg_phi <- resample_avg_node_phi(node_phi_array, 
                                 group_membership = control_rows, 
